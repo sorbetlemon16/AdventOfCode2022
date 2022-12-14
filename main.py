@@ -4,12 +4,23 @@ file_data = open('puzzle_inputs/day132022.txt', 'r').readlines()
 
 def compare_lists(left, right):
 
-  if len(left) > len(right):
+  # right ran out items
+  if len(right) == 0:
     return False
-    
+  # left ran out of items 
+  if len(left) == 0:
+    return True
+
   for i in range(len(left)):
+    
     if isinstance(left[i], int) and isinstance(right[i], int):
       if int(right[i]) < int(left[i]):
+        return False
+      # right is greater, do not need to continue
+      elif int(right[i]) > int(left[i]):
+        return True
+      # so far equal values but right ran out of values
+      elif i == len(right) - 1 and len(right) < len(left):
         return False
     # checks that both are lists
     elif isinstance(left[i], list) and isinstance(right[i], list):
@@ -24,12 +35,13 @@ def compare_lists(left, right):
   return True
     
 def part_one():
-  not_in_order = []
   sum = 0
   for i in range(0, len(file_data), 3):
     left = ast.literal_eval(file_data[i])
     right = ast.literal_eval(file_data[i + 1])
+    print()
     if compare_lists(left, right):
+      print(i / 3 + 1)
       sum += i / 3 + 1
 
   return sum
