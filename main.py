@@ -2,72 +2,46 @@ import re
 
 file_data = open('puzzle_inputs/day152022.txt', 'r').readlines()
 
-def part_one():
-  sensor_beacon_pairs = set()
-  sensors = set()
-  beacons = set()
- 
-  covered = set()
+def part_one(y):
+
+  x_vals = set()
+  objects_at_y = set()
   for row in file_data:
-    # print(row, end="")
     # remove non-numbers
     coordinates = re.split(r'\D+',row.strip())
 
     # can't get rid of space in front?
-    _, sensor_x, sensor_y, beacon_x, beacon_y = coordinates
-    sensor = (int(sensor_x), int(sensor_y))
-    beacon = (int(beacon_x), int(beacon_y))
-    sensors.add(sensor)
-    beacons.add(beacon)
-    sensor_beacon_pairs.add((sensor, beacon))
-
-  for pair in sensor_beacon_pairs:
-    sensor, beacon = pair
-    sensor_x = int(sensor[0])
-    sensor_y = int(sensor[1])
-    beacon_x = int(beacon[0])
-    beacon_y = int(beacon[1])
+    sensor_x = int(coordinates[1])
+    sensor_y = int(coordinates[2])
+    beacon_x = int(coordinates[3])
+    beacon_y = int(coordinates[4])
     x_dist = abs(sensor_x - beacon_x)
     y_dist = abs(sensor_y - beacon_y)
 
     total_dist = x_dist + y_dist
-    # start at furthest edges, then go in
-    print("pair", total_dist)
-    for dist_from_center in range(total_dist, -1, -1):
-      print(dist_from_center)
-      # print("distance from center ", dist_from_center)
-      # at furthest edge, need for most iteration - less iteration as you go 
-      # inwards because dimensions decrease 
 
-      # +1 to include value of distance_from_center 
-      for i in range(dist_from_center + 1):
-        # values from i represent the incremental staircasing
+    if beacon_y == y:
+      objects_at_y.add(beacon_x)
+    if sensor_y == y:
+      objects_at_y.add(sensor_x)
 
-        # offset represents how much to bring it closer to the center
-        offset = total_dist - dist_from_center
+    # check if sensor overlaps
+    if sensor_y - total_dist <= y <= sensor_y + total_dist:
+      level_overlap = total_dist - abs(y - sensor_y)
+      min_x = sensor_x - level_overlap
+      max_x = sensor_x + level_overlap
 
-        # TOP RIGHT
-        covered.add((sensor_x + total_dist - offset - i, sensor_y + i))
-        # TOP LEFT 
-        covered.add((sensor_x - total_dist + offset + i, sensor_y + i))
-        # BOTTOM LEFT 
-        covered.add((sensor_x - total_dist + offset + i, sensor_y - i))
-        # BOTTOM RIGHT
-        covered.add((sensor_x + total_dist - offset - i, sensor_y - i))
-  
-  num_covered = 0
-  for coordinates in covered - sensors - beacons: 
+      # include max_x
+      for i in range(min_x, max_x + 1):
+        # print(i)
+        x_vals.add(i)
 
-    if coordinates[1] == 10:
-      print(coordinates)
-      num_covered += 1
-      
-  return num_covered
+  return len(x_vals - objects_at_y)
     
 def part_two():
    pass
     
-print(part_one())
+print(part_one(2000000))
 print(part_two())
 
 # Template
