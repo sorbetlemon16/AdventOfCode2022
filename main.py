@@ -12,7 +12,6 @@ class Node:
     return str(self.elevation) + str(self.reachable)
 
 def get_starting_coordinates():
-
   for row_index in range(len(file_data)):
     for col_index in range(len(file_data[row_index])):
       if file_data[row_index][col_index] == "S":
@@ -37,29 +36,7 @@ def get_node_grid():
 
   print(node_grid)
   
-  # for row_index in range(len(node_grid)):
-  #   for col_index in range(len(node_grid[row_index])):
-  #     # update reachable to be nodes
-  #     node_grid[row_index][col_index].reachable = get_nodes_from_coordinates(\
-  #       node_grid[row_index][col_index].reachable, 
-  #       node_grid)
-  # print(node_grid)
-
   return node_grid
-
-# def get_reachable_nodes(coordinate_list, node_grid):
-#   reachable_nodes = set()
-#   for coordinates in coordinate_list: 
-#     row, col = coordinates
-#     reachable_nodes.add(node_grid[row][col])
-#   return reachable_nodes
-    
-# def get_nodes_from_coordinates(coordinate_list, node_grid):
-#   nodes = set()
-#   for coordinates in coordinate_list: 
-#     row, col = coordinates
-#     nodes.add(node_grid[row][col])
-#   return nodes
 
 # returns booleans for reachable in up, down, left, right
 def get_reachable_coordinates(coordinates, elevation):
@@ -106,12 +83,11 @@ def part_one():
 
     current_distance += 1
 
-    # add reachable neighbors
     for node_coordinates in current_node.reachable - seen_coordinates:
       x, y = node_coordinates
       to_visit.append((nodes[x][y], current_distance))
-      # if node not in seen:
-      #   to_visit.append((node, current_distance))
+      # THIS IS WHAT GOT ME
+      seen_coordinates.add(node_coordinates)
 
   return "No possible path"
     
