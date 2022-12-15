@@ -1,73 +1,110 @@
-import json
-import functools
+from collections import deque 
 
-file_data = open('puzzle_inputs/day132022.txt', 'r').readlines()
+file_data = open('puzzle_inputs/day122022.txt', 'r').readlines()
 
-def compare_lists(left, right):
+class Node:
+  def __init__(self, coordinates, elevation, reachable):
+    self.coordinates = coordinates
+    self.elevation = elevation
+    self.reachable = reachable
 
-  # right ran out items
-  if len(right) == 0:
-    return False
-  # left ran out of items 
-  if len(left) == 0:
-    return True
+  def __repr__(self):
+    return str(self.elevation) + str(self.reachable)
 
-  for i in range(len(left)):
-    
-    if isinstance(left[i], int) and isinstance(right[i], int):
-      if int(right[i]) < int(left[i]):
-        return False
-      # right is greater, do not need to continue
-      elif int(right[i]) > int(left[i]):
-        return True
-      # so far equal values but right ran out of values
-      elif i == len(right) - 1 and len(right) < len(left):
-        return False
-    # checks that both are lists
-    elif isinstance(left[i], list) and isinstance(right[i], list):
-      return compare_lists(left[i], right[i])
-    # right is a list
-    elif isinstance(left[i], int) and isinstance(right[i], list):
-      return compare_lists([left[i]], right[i])
-    # left is a list
-    elif isinstance(left[i], list) and isinstance(right[i], int):
-      return compare_lists(left[i], [right[i]])
+def get_starting_coordinates():
 
-  return True
-    
+  for row_index in range(len(file_data)):
+    for col_index in range(len(file_data[row_index])):
+      if file_data[row_index][col_index] == "S":
+        return (row_index, col_index)
+
+def get_elevation(row, col):
+  if file_data[row][col] == "S":
+    return 0
+  if file_data[row][col] == "E":
+    return 26
+  return ord(file_data[row][col]) - 97
+
+def get_node_grid():
+  # initialize 2D array
+  node_grid = [ [ None for x in range(len(file_data[0].strip())) ] for x in range(len(file_data)) ]
+  for row_index in range(len(file_data)):
+    for col_index in range(len(file_data[row_index].strip())):
+      elevation = get_elevation(row_index, col_index)
+      coordinates = (row_index, col_index)
+      reachable = get_reachable_coordinates(coordinates, elevation)
+      node_grid[row_index][col_index] = Node(coordinates, elevation, reachable)
+
+  print(node_grid)
+
+  return node_grid
+
+# returns booleans for reachable in up, down, left, right
+def get_reachable_coordinates(coordinates, elevation):
+  row, col = coordinates
+  reachable = []
+  
+  # check can move up 
+  if row - 1 >= 0:
+    if elevation + 1 >= get_elevation(row - 1, col):
+      reachable.append((row - 1, col))
+  # check can move left 
+  if col - 1 >= 0:
+    if elevation + 1 >= get_elevation(row, col - 1):
+      reachable.append((row, col - 1))
+  # check can move right
+  if col + 1 < len(file_data[0].strip()):
+    if elevation + 1 >= get_elevation(row, col + 1):      
+      reachable.append((row, col + 1))
+  # check can move down
+  if row + 1 < len(file_data):
+    if elevation + 1 >= get_elevation(row + 1, col):
+      reachable.append((row + 1, col))
+
+  return reachable
+
 def part_one():
-  sum = 0
-  for i in range(0, len(file_data), 3):
-    left = json.loads(file_data[i])
-    right = json.loads(file_data[i + 1])
-    if compare_lists(left, right):
-      sum += i / 3 + 1
+  nodes = get_node_grid()
 
-  return sum
+  start_row, start_col = get_starting_coordinates()
+  current = nodes[start_row][start_col]
 
-def make_comparator(less_than):
-    def compare(x, y):
-        if less_than(x, y):
-            return -1
-        elif less_than(y, x):
-            return 1
-        else:
-            return 0
-    return compare
+  # to_visit consists of tuples with a node and distance from start 
+  to_visit = deque([(current, 0)])
+  seen = set()
 
+  while to_visit:
+    # use queue for BFS to get shortest path
+    current_node, current_distance = to_visit.popleft()
+
+    # this means we found the end
+    if current_node.elevation == 26:
+      return current_distance
+
+    seen.add(current_node)
+
+    current_distance += 1
+    # add reachable neighbors
+    for node_coordinates in current_node.reachable:
+      node_row, node_col = node_coordinates
+      node = nodes[node_row][node_col]
+      if node not in seen:
+        to_visit.append((node, current_distance))
+
+  return "No possible path"
+    
 def part_two():
-  all_packets = []
-  for i in range(0, len(file_data), 3):
-    left = json.loads(file_data[i])
-    right = json.loads(file_data[i + 1])
-    all_packets.append(left)
-    all_packets.append(right)
-
-  all_packets.sort(key=functools.cmp_to_key(make_comparator(compare_lists)))
-
-  return (all_packets.index([[2]]) + 1) * (all_packets.index([[6]]) + 1)
-
+   pass
     
 print(part_one())
 print(part_two())
 
+# Template
+
+# def part_one():
+    
+# def part_two():
+#    pass
+    
+# print(part_one())
+# print(part_two())
