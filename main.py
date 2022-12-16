@@ -2,13 +2,11 @@ import re
 
 file_data = open('puzzle_inputs/day152022.txt', 'r').readlines()
 
-def part_one(y):
-
-  x_vals = set()
-  objects_at_y = set()
+def get_sensor_beacon_dist():
+  data = set()
   for row in file_data:
     # remove non-numbers
-    coordinates = re.split(r'\D+',row.strip())
+    coordinates = re.sub(r'[^1234567890=-]', "", row.strip()).split("=")
 
     # can't get rid of space in front?
     sensor_x = int(coordinates[1])
@@ -19,7 +17,19 @@ def part_one(y):
     y_dist = abs(sensor_y - beacon_y)
 
     total_dist = x_dist + y_dist
+    data.add(((sensor_x, sensor_y), (beacon_x, beacon_y), total_dist))
 
+  return data
+
+def occupied_spots_at_row(y):
+  x_vals = set()
+  objects_at_y = set()
+  data = get_sensor_beacon_dist()
+  for row in data:
+    sensor, beacon, total_dist = row
+    sensor_x, sensor_y = sensor
+    beacon_x, beacon_y = beacon
+    
     if beacon_y == y:
       objects_at_y.add(beacon_x)
     if sensor_y == y:
@@ -33,15 +43,55 @@ def part_one(y):
 
       # include max_x
       for i in range(min_x, max_x + 1):
-        # print(i)
         x_vals.add(i)
 
-  return len(x_vals - objects_at_y)
+  return x_vals - objects_at_y
+
+def part_one():
+  return len(occupied_spots_at_row(10))
+
+def distance_between(x1, y1, x2, y2):
+  return abs(x1 - x2) + abs(y1 - y2)
+
+def find_unreachable():
+  for x in range(4000000):
+    for y in range(4000000):
+      # print()
+      # print("checking", x, y)
+      reachable = False
+      # print("try again")
+      data = get_sensor_beacon_dist()
+      for row in data:
+        sensor, beacon, total_dist = row
+        sensor_x, sensor_y = sensor
+        beacon_x, beacon_y = beacon
+        
+        x_dist = abs(sensor_x - beacon_x)
+        y_dist = abs(sensor_y - beacon_y)
+
+        total_dist = x_dist + y_dist
+        # print("checking sensor ", sensor_x, sensor_y, "with total_distance", total_dist)
+  
+        if distance_between(x, y, sensor_x, sensor_y) <= total_dist:
+          reachable = True
+          # print("sensor ", sensor_x, sensor_y, "with total_distance", total_dist, "greater than",\
+          #       distance_between(x, y, sensor_x, sensor_y))
+          # print("reaches",x, y)
+          # print("reachable", reachable)
+
+          # print("broke")
+          break
+      # print("HI")
+      if not reachable:
+        print(x, y)
+        return (x, y)
+
     
 def part_two():
-   pass
+  x, y = find_unreachable()
+  return x * 4000000 + y
     
-print(part_one(2000000))
+# print(part_one())
 print(part_two())
 
 # Template
