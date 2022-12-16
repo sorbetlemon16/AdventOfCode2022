@@ -53,11 +53,16 @@ def part_one():
 def distance_between(x1, y1, x2, y2):
   return abs(x1 - x2) + abs(y1 - y2)
 
-def find_unreachable():
-  for x in range(4000000):
-    for y in range(4000000):
+def find_unreachable(dimension):
+  data = get_sensor_beacon_dist()
+
+  x = y = 0
+  while y < dimension:
+    y += 1
+    x = 0
+    while x < dimension:
       reachable = False
-      data = get_sensor_beacon_dist()
+      # print(y)
       for row in data:
         sensor, beacon, total_dist = row
         sensor_x, sensor_y = sensor
@@ -67,16 +72,22 @@ def find_unreachable():
         y_dist = abs(sensor_y - beacon_y)
 
         total_dist = x_dist + y_dist
-  
-        if distance_between(x, y, sensor_x, sensor_y) <= total_dist:
+
+        distance = distance_between(x, y, sensor_x, sensor_y)
+        if distance <= total_dist:
           reachable = True
+          corner_dist = total_dist - abs(sensor_y - y)
+          # shift right  max amount possible
+          x = sensor_x + corner_dist if sensor_x + corner_dist > x + 1 else x + 1
           break
+          
       if not reachable:
         return (x, y)
 
     
 def part_two():
-  x, y = find_unreachable()
+  x, y = find_unreachable(4000000)
+  print(x, y)
   return x * 4000000 + y
     
 print(part_one())

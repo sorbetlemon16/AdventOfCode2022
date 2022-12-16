@@ -48,7 +48,7 @@ def get_rock_grid(is_floor):
   return (grid, min(x_vals), max(x_vals), min(y_vals), max(y_vals), x_shift)
 
 def print_grid(grid):
-  time.sleep(0.1)
+  time.sleep(0.2)
   os.system('clear') 
   for r in range(len(grid)):
     for c in range(len(grid[r])):
@@ -67,10 +67,12 @@ def simulate_sand(has_floor):
     sand_y = 0
     settled = False
 
-    # uncomment for animation
+    # uncomment for animation of final placement of sand
     # print_grid(rock_grid)
     
     while not settled:
+      # uncomment for animation of falling sand
+      print_grid(rock_grid)
       if has_floor:
         if rock_grid[0][500 - x_shift] != ".":
           return sand_num
@@ -110,7 +112,7 @@ def part_two():
     
 print(part_one())
 print()
-print(part_two())
+# print(part_two())
 
 # Template
 
