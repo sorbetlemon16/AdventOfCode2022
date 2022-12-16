@@ -3,7 +3,7 @@ import time
 
 file_data = open('puzzle_inputs/day142022.txt', 'r').readlines()
 
-def get_rock_grid():
+def get_rock_grid(is_floor):
   x_vals = []
   y_vals = []
   for row in file_data: 
@@ -13,14 +13,18 @@ def get_rock_grid():
       x_vals.append(x1)
       y_vals.append(y1)
 
-  length = max(x_vals) - min(x_vals) + 1
+  length = max(x_vals) - min(x_vals) + 1 if not is_floor else 1002
   height = max(y_vals) + 1
+  print("dimensions", length, height)
 
-  x_shift = min(x_vals)
+  x_shift = min(x_vals) if not is_floor else 0
   
   grid = [ [ "." for x in range(length + 1) ] for x in range(height + 1) ]
 
-  print_grid(grid)
+  # print_grid(grid)
+
+  if is_floor:
+    file_data.append(f"0,{max(y_vals)} -> 1000,{max(y_vals)}")
 
   for row in file_data: 
     rock_coords = row.strip().split(" -> ")
@@ -31,7 +35,6 @@ def get_rock_grid():
       x2, y2 = int(rock_coords[i + 1].split(",")[0]), int(rock_coords[i + 1].split(",")[1])
       is_horizontal = True if y1 == y2 else False
 
-      # print("coords", x1, y1, x2, y2)
       # y stays the same
       if is_horizontal:
         start_x = min([x1, x2])
@@ -53,11 +56,9 @@ def print_grid(grid):
     print()
   print()
 
-def part_one():
-  rock_grid, min_x, max_x, min_y, max_y, x_shift = get_rock_grid()
+def simulate_sand(has_floor):
+  rock_grid, min_x, max_x, min_y, max_y, x_shift = get_rock_grid(has_floor)
 
-  print_grid(rock_grid)
-  
   sand_num = 0
 
   while True:
@@ -65,10 +66,18 @@ def part_one():
     sand_x = 500
     sand_y = 0
     settled = False
+
+    # uncomment for animation
+    # print_grid(rock_grid)
     
     while not settled:
-      if not (min_x < sand_x < max_x and sand_y < max_y):
-        return sand_num
+      if has_floor:
+        if rock_grid[0][500 - x_shift] != ".":
+          return sand_num
+      else: 
+        # sand out of bounds into the abyss
+        if not (min_x < sand_x < max_x and sand_y < max_y):
+          return sand_num
       # if below is air, sand drifts down 1
       if rock_grid[sand_y + 1][sand_x - x_shift] == ".":
         rock_grid[sand_y][sand_x - x_shift] = "."        
@@ -93,10 +102,14 @@ def part_one():
 
   return sand_num
     
+def part_one():
+  return simulate_sand(False)
+  
 def part_two():
-   pass
+  return simulate_sand(True)
     
 print(part_one())
+print()
 print(part_two())
 
 # Template
