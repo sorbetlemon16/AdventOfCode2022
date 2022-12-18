@@ -1,13 +1,14 @@
-file_data = open('puzzle_inputs/day162022.txt', 'r').readlines()
+file_data = open('puzzle_inputs/day172022.txt', 'r').readlines()
 
 def part_one():
-  pass    
-
-def part_two():
   pass
-  
+    
+def part_two():
+   pass
+    
 print(part_one())
 print(part_two())
+
 
 # Template
 
